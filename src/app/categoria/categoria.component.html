@@ -1,0 +1,20 @@
+<!-- En tu archivo componente.html -->
+<form (ngSubmit)="crearCategoria()" #categoriaForm="ngForm">
+    <div>
+      <label for="nombre">Nombre de la categoría:</label>
+      <input type="text" id="nombre" name="nombre" [(ngModel)]="nombreCategoria" required>
+    </div>
+  
+    <div>
+      <label for="id">Número ID de la categoría:</label>
+      <input type="number" id="id" name="id" [(ngModel)]="idCategoria" required>
+    </div>
+  
+    <div>
+      <label for="descripcion">Descripción:</label>
+      <textarea id="descripcion" name="descripcion" [(ngModel)]="descripcionCategoria" required></textarea>
+    </div>
+  
+    <button type="submit" [disabled]="!categoriaForm.valid">Crear Categoría</button>
+  </form>
+  

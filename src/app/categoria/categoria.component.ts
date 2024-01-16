@@ -1,41 +1,92 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { CategoriesService } from '../services/categories.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Route, Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-categoria',
   templateUrl: './categoria.component.html',
   styleUrls: ['./categoria.component.css']
 })
-export class CategoriaComponent {
-  
-  nombreCategoria: string = '';
+export class CategoriaComponent implements OnInit{
+  categoriaForm!: FormGroup;
+
+  constructor(
+    private fb: FormBuilder, 
+    private categoriesService: CategoriesService,
+    private router: Router,
+    private route: ActivatedRoute,
+    ) {}
+
+  ngOnInit() {
+    this.categoriaForm = this.fb.group({
+      nombre: ['', Validators.required],
+      id: [0, [Validators.required, Validators.min(1)]],
+      descripcion: ['', Validators.required]
+    });
+  }
+
+  crearCategoria() {
+    if (this.categoriaForm && this.categoriaForm.valid) {
+      const nombre = this.categoriaForm.get('nombre')?.value;
+      const id = this.categoriaForm.get('id')?.value;
+      const descripcion = this.categoriaForm.get('descripcion')?.value;
+
+      if (nombre !== undefined && id !== undefined && descripcion !== undefined) {
+        this.categoriesService.createCategory(nombre, id, descripcion)
+          .subscribe(response => {
+            console.log('Categoría creada con éxito:', response);
+            this.router.navigate(['/lista']);
+          }, error => {
+            console.error('Error al crear la categoría:', error);
+          });
+      }
+    }
+  }
+
+  clicTouch() {
+    Object.values(this.categoriaForm.controls).forEach(control => {
+      control.markAsTouched();
+    });
+  }
+}
+/*
+nombreCategoria: string = '';
   idCategoria: number = 0;
   descripcionCategoria: string = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private categorieService: CategoriesService
+  ) {}
 
   crearCategoria() {
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/x-www-form-urlencoded',
-    });
-
-    const body = new URLSearchParams();
-    body.set('wstoken', 'c686a242c8693cda4e5819e0c5445efe'); // Token de autenticación
-    body.set('wsfunction', 'core_course_create_categories');
-    body.set('moodlewsrestformat', 'json');
-    body.set('categories[0][name]', this.nombreCategoria);
-    body.set('categories[0][idnumber]', this.idCategoria.toString());
-    body.set('categories[0][description]', this.descripcionCategoria);
-
-    const options = {
-      headers,
-    };
-
-    this.http.post(`http://localhost/moodle/webservice/rest/server.php`, body.toString(), options)
+    this.categorieService.createCategory(this.nombreCategoria, this.idCategoria, this.descripcionCategoria)
       .subscribe(response => {
         console.log('Categoría creada con éxito:', response);
       }, error => {
         console.error('Error al crear la categoría:', error);
       });
   }
-}
+
+  // create function update 
+  updateCategory() {
+    this.categorieService.updateCategory(this.nombreCategoria, this.idCategoria, this.descripcionCategoria)
+      .subscribe(response => {
+        console.log('Categoría actualizada con éxito:', response);
+      }, error => {
+        console.error('Error al actualizar la categoría:', error);
+      });
+  }
+  
+  // create function delete
+  deleteCategory() {
+    this.categorieService.deleteCategory(this.idCategoria)
+      .subscribe(response => {
+        console.log('Categoría eliminada con éxito:', response);
+      }, error => {
+        console.error('Error al eliminar la categoría:', error);
+      });
+  }
+*/

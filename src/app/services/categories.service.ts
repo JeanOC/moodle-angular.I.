@@ -45,53 +45,37 @@ export class CategoriesService {
     return throwError('Something bad happened; please try again later.');
   }
 
-
-  // create function update 
-  updateCategory(nombre: string, id: number, descripcion: string): Observable<any> {
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/x-www-form-urlencoded',
-    });
-
-    const body = new URLSearchParams();
-    body.set('wstoken', this.token);
-    body.set('wsfunction', 'core_course_update_categories');
-    body.set('moodlewsrestformat', 'json');
-    body.set('categories[0][id]', id.toString());
-    body.set('categories[0][name]', nombre);
-    body.set('categories[0][description]', descripcion);
-
-    const options = {
-      headers,
-    };
-
-    return this.http.post(this.moodleUrl, body.toString(), options)
-      .pipe(
-        catchError(this.handleError)
-      );
+  /**
+   * list all categories
+   */
+  getAllCategories(): Observable<any[]> {
+    const url = `${this.moodleUrl}/webservice/rest/server.php?wstoken=${this.token}&wsfunction=core_course_get_categories&moodlewsrestformat=json`;
+    return this.http.get<any[]>(url);
+    console.log('url del servicio',url)
   }
 
-  // crate function delete
-  deleteCategory(id: number): Observable<any> {
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/x-www-form-urlencoded',
-    });
-
-    const body = new URLSearchParams();
-    body.set('wstoken', this.token);
-    body.set('wsfunction', 'core_course_delete_categories');
-    body.set('moodlewsrestformat', 'json');
-    body.set('categories[0][id]', id.toString());
-
-    const options = {
-      headers,
-    };
-
-    return this.http.post(this.moodleUrl, body.toString(), options)
-      .pipe(
-        catchError(this.handleError)
-      );
+  /**
+   * get category by id
+   */
+  getCategoryDetails(categoryId: number): Observable<any> {
+    const url = `${this.moodleUrl}/webservice/rest/server.php?wstoken=${this.token}&wsfunction=core_course_get_categories&moodlewsrestformat=json`;
+    return this.http.get<any>(`${url}&categoryid=${categoryId}`);
   }
 
+  /**
+   * crate function to edit category
+   */
+  editCategory(id: number, nombre: string,  descripcion: string): Observable<any> {
+    const url = `${this.moodleUrl}/webservice/rest/server.php?wstoken=${this.token}&wsfunction=core_course_update_categories&moodlewsrestformat=json`;
+    const data = {
+      categories: [
+        {
+          id: id,
+          name: nombre,
+          description: descripcion
+        }
+      ]
+    };
+    return this.http.post<any>(url, data);
+  }
 }
